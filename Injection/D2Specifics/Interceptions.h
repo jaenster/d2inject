@@ -84,6 +84,55 @@ namespace D2 {
                 Handler();
             }
         }
+
+        namespace CongratsScreen {
+            std::vector<void (*)(void)> hooks = {
+                    []() { // Fix max diff flag
+                        if (D2CLIENT_GetDifficulty() == 1 && *p_D2CLIENT_ExpCharFlag) {
+                            BnetData* pData = *p_D2LAUNCH_BnData;
+                            if (pData)
+                                pData->nMaxDiff = 10;
+                        }
+                    }
+            };
+
+            void Handler(void) {
+                for (auto func: hooks) func();
+            }
+
+            void __declspec(naked) Override(void) {
+                __asm
+                {
+                    call D2CLIENT_CongratsScreen_I
+                    pushad
+                    call Handler
+                    popad
+                    retn
+                }
+            }
+        }
+        namespace GameLeave {
+            std::vector<void (*)(void)> hooks = {
+                    []() { // Fix max diff flag
+
+                    }
+            };
+
+            void Handler(void) {
+                for (auto func: hooks) func();
+            }
+
+            void __declspec(naked) Override(void) {
+                __asm
+                {
+                    call D2CLIENT_CongratsScreen_I
+                    pushad
+                    call Handler
+                    popad
+                    retn
+                }
+            }
+        }
     }
 }
 

@@ -29,6 +29,10 @@ namespace D2 {
             {PatchCall, off(0xF9A0D), (DWORD)D2::Intercepts::GameDrawOOG::Override, 5},
             {PatchJmp, off(0x53B30), (DWORD)D2::Intercepts::GameDraw::Override, 5},
 
+            // Congrats screen, its hookable, yet i dont see why you want to.
+            {PatchCall, off(0x4EBEF), (DWORD)D2::Intercepts::CongratsScreen::Override, 5},
+
+
             /*         Original data
 
     0:  75 17                   jne    0x19
