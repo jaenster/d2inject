@@ -6,11 +6,11 @@
 #define INJECTION_PATCHES
 
 #include "../MemoryManipulation.h"
-#include "Interceptions.h"
+#include "Events.h"
 #include <vector>
 
 // Load the Interceptions
-#include "Interceptions.h"
+#include "Events.h"
 
 #include <vector>
 namespace D2 {
