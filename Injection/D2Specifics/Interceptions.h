@@ -113,9 +113,7 @@ namespace D2 {
         }
         namespace GameLeave {
             std::vector<void (*)(void)> hooks = {
-                    []() { // Fix max diff flag
 
-                    }
             };
 
             void Handler(void) {
@@ -125,11 +123,8 @@ namespace D2 {
             void __declspec(naked) Override(void) {
                 __asm
                 {
-                    call D2CLIENT_CongratsScreen_I
-                    pushad
                     call Handler
-                    popad
-                    retn
+                    jmp D2CLIENT_GameLeave_I
                 }
             }
         }

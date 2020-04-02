@@ -32,17 +32,21 @@ void Startup() {
     InstallPatches(D2::Patches);
 
     D2::Intercepts::GameDrawOOG::hooks.push_back([]() {
-        D2WIN_DrawSprites();
         D2WIN_DrawText(L"What else is new",10,10,4,10);
-        std::cout << "Looked at oog drawing" << std::endl;
+//        std::cout << "Looked at oog drawing" << std::endl;
     });
 
     D2::Intercepts::GameDraw::hooks.push_back([]() {
-        std::cout << "Looked at in-game drawing" << std::endl;
+        D2WIN_DrawText(L"What else is new",10,10,4,10);
+//        std::cout << "Looked at in-game drawing" << std::endl;
     });
 
     D2::Intercepts::GameLoop::hooks.push_back([]() {
-        std::cout << "Game sleep" << std::endl;
+//        std::cout << "Game sleep" << std::endl;
+    });
+
+    D2::Intercepts::GameLeave::hooks.push_back([]() {
+        std::cout << "left game" << std::endl;
     });
 }
 

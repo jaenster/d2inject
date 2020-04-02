@@ -32,6 +32,7 @@ namespace D2 {
             // Congrats screen, its hookable, yet i dont see why you want to.
             {PatchCall, off(0x4EBEF), (DWORD)D2::Intercepts::CongratsScreen::Override, 5},
 
+            {PatchCall,off(0x4F57C),(DWORD)D2::Intercepts::GameLeave::Override,5},
 
             /*         Original data
 
@@ -49,7 +50,7 @@ namespace D2 {
     a:  74 0d                   je     0x19
     c:  83 f8 08                cmp    eax,0x8
          */
-            {PatchCall, off(0x51C31), (DWORD) D2::Intercepts::GameLoop::Override,5}
+            {PatchCall, off(0x51C31), (DWORD) D2::Intercepts::GameLoop::Override,5},
     };
 
 }

@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.15)
 project(D2Inject)
 
 # which c++ standard we wanna use? i go with a high number as its a new project
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 20)
 
 # tell the compiler its a 32 bit process
 set(CMAKE_SYSTEM_PROCESSOR "i686")
