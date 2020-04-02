@@ -26,13 +26,12 @@ namespace D2 {
 
     std::vector<PatchStructure> Patches = {
             // GameDraw intercepts
-            {PatchCall, off(0xF9A0D), (DWORD)D2::Intercepts::GameDrawOOG::Override, 5},
-            {PatchJmp, off(0x53B30), (DWORD)D2::Intercepts::GameDraw::Override, 5},
+            {PatchCall, off(0xF9A0D), (DWORD)D2::GameDrawOOG::Override, 5},
+            {PatchJmp, off(0x53B30), (DWORD)D2::GameDraw::Override, 5},
 
             // Congrats screen, its hookable, yet i dont see why you want to.
-            {PatchCall, off(0x4EBEF), (DWORD)D2::Intercepts::CongratsScreen::Override, 5},
-
-            {PatchCall,off(0x4F57C),(DWORD)D2::Intercepts::GameLeave::Override,5},
+            {PatchCall, off(0x4EBEF), (DWORD)D2::CongratsScreen::Override, 5},
+            {PatchCall,off(0x4F57C),(DWORD)D2::GameLeave::Override,5},
 
             /*         Original data
 
@@ -50,7 +49,7 @@ namespace D2 {
     a:  74 0d                   je     0x19
     c:  83 f8 08                cmp    eax,0x8
          */
-            {PatchCall, off(0x51C31), (DWORD) D2::Intercepts::GameLoop::Override,5},
+            {PatchCall, off(0x51C31), (DWORD) D2::GameLoop::Override,5},
     };
 
 }

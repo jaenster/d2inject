@@ -31,22 +31,26 @@ void Startup() {
     // We just entered the DLL.. Now what?
     InstallPatches(D2::Patches);
 
-    D2::Intercepts::GameDrawOOG::hooks.push_back([]() {
+    D2::GameDrawOOG::hooks.push_back([]() {
         D2WIN_DrawText(L"What else is new",10,10,4,10);
 //        std::cout << "Looked at oog drawing" << std::endl;
     });
 
-    D2::Intercepts::GameDraw::hooks.push_back([]() {
+    D2::GameDraw::hooks.push_back([]() {
         D2WIN_DrawText(L"What else is new",10,10,4,10);
 //        std::cout << "Looked at in-game drawing" << std::endl;
     });
 
-    D2::Intercepts::GameLoop::hooks.push_back([]() {
+    D2::GameLoop::hooks.push_back([]() {
 //        std::cout << "Game sleep" << std::endl;
     });
 
-    D2::Intercepts::GameLeave::hooks.push_back([]() {
+    D2::GameLeave::hooks.push_back([]() {
         std::cout << "left game" << std::endl;
+    });
+
+    D2::GameJoin::hooks.push_back([]() {
+        std::cout << "join game" << std::endl;
     });
 }
 
