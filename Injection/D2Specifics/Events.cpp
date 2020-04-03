@@ -4,6 +4,46 @@
 namespace D2 {
     extern bool inGame = false;
     extern int area = 0;
+
+    namespace Timer {
+        struct TimedFunc_t {
+            void (*pFunc)(DWORD);
+
+            DWORD timer;
+            DWORD param;
+            bool done;
+        };
+
+        std::vector<TimedFunc_t> timers;
+
+        long add(void (*pFunc)(DWORD), int ms, DWORD parameter) {
+            timers.push_back({pFunc, GetTickCount() + ms - 1, parameter, false});
+            return timers.size() - 1;
+        }
+
+        long add(int ms,void (*pFunc)(DWORD)) {
+            return D2::Timer::add(pFunc,ms,0);
+        }
+        long add(void (*pFunc)(DWORD),int ms) {
+            return D2::Timer::add(pFunc,ms,0);
+        }
+
+        bool remove(long id) {
+            timers[id].done = true;
+            return true;
+        }
+
+        void Handler() {
+            for (int i=0;i<timers.size();i++) {
+                if (!timers[i].done && GetTickCount() > timers[i].timer) {
+                    timers[i].pFunc(timers[i].param);
+                    timers[i].done = true;
+                    std::cout << GetTickCount() << "\t" << timers[i].timer << "\t" << timers[i].done << std::endl;
+                }
+            }
+        }
+    }
+
     namespace GameJoin {
         std::vector<void (*)(void)> hooks = {
 
@@ -43,6 +83,9 @@ namespace D2 {
                     }
                     // check the area change
                     D2::AreaChange::Check();
+
+                    // check for the timers to be ran
+                    D2::Timer::Handler();
                 },
         };
 
@@ -129,10 +172,10 @@ namespace D2 {
     }
     namespace GameLeave { // PATCH
         std::vector<void (*)(void)> hooks = {
-            []() {
-                // Once we left the game, we arent in one
-                D2::inGame = false;
-            }
+                []() {
+                    // Once we left the game, we arent in one
+                    D2::inGame = false;
+                }
         };
 
         void Handler(void) {

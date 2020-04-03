@@ -9,7 +9,7 @@
 // Game loop patch
 ///////////////////////////////////////////////////
 #include "Windows.h"
-
+#include <set>
 #include <iostream>
 #include <vector>
 
@@ -49,6 +49,13 @@ namespace D2 {
     }
     namespace AreaChange {
         extern std::vector<void (*)(int)> hooks;
+    }
+
+    namespace Timer {
+        long add(void (*pFunc)(DWORD),int ms);
+        long add(int ms,void (*pFunc)(DWORD));
+        long add(void (*pFunc)(DWORD), int ms, DWORD parameter);
+        bool remove(int type);
     }
 }
 
