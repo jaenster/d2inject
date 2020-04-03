@@ -5,6 +5,7 @@
 #define __D2PTRS_H__
 
 #include "D2Structs.h"
+#include "D2Common.h"
 
 #pragma warning(push)
 #pragma warning(disable : 4245)

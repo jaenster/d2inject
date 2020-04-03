@@ -9,6 +9,7 @@
 #undef __D2PTRS_H__
 #define __D2PTRS_LIST_
 
+#include "D2Common.h"
 #include "../MemoryManipulation.h"
 // Some trickery to load D2Ptr's correctly, yeey legacy code
 

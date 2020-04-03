@@ -10,10 +10,14 @@
 #include "../D2Specifics/D2Common.h"
 
 namespace Maphack {
-
+    struct Exit_t {
+        Room2 *pRoom2;
+        bool bStairs;
+    };
     struct MyData {
         bool loadedAreas[137 /*UT + 1*/] = {};
-        int previousArea = 0;
+        std::vector<Level *> visibleAreas;
+        std::vector<Exit_t> exits;
     };
     MyData vault;
 
@@ -22,10 +26,9 @@ namespace Maphack {
         bool bInit = false;
 
         Level *level = pRoom2->pLevel;
-        DWORD dwLevelNo = D2CLIENT_GetPlayerUnit()->pPath->pRoom1->pRoom2->pLevel->dwLevelNo;
+        DWORD dwLevelNo = level->dwLevelNo;
         // Make sure we have the room.
 
-        UnitAny *player = D2CLIENT_GetPlayerUnit();
         // Check if we have Room1(Needed in order to reveal)
         if (!(pRoom2->pLevel && pRoom2->pRoom1)) {
             D2COMMON_AddRoomData(pRoom2->pLevel->pMisc->pAct, pRoom2->pLevel->dwLevelNo, pRoom2->dwPosX,
@@ -59,7 +62,22 @@ namespace Maphack {
     void Init() {
 
         D2::GameLoop::hooks.push_back([]() {
-//            std::cout << "lol here" << std::endl;
+        });
+
+        D2::GameDraw::hooks.push_back([]() {
+            for(int i =0;i<vault.exits.size();i++) {
+//                std::cout << vault.exits[i].pRoom2 << "test" << std::endl;
+            }
+            UnitAny *player = D2CLIENT_GetPlayerUnit();
+
+            POINT myCoords = ScreenToAutomap(D2CLIENT_GetUnitX(player),D2CLIENT_GetUnitY(player));
+            for(auto exit: vault.exits) {
+                int x= exit.pRoom2->dwPosX * 5 + exit.pRoom2->dwSizeX * 5, y= exit.pRoom2->dwPosY * 5 + exit.pRoom2->dwSizeY * 5;
+                POINT myPoint = ScreenToAutomap(x,y);
+
+                std::cout << myPoint.x <<"\t" << myPoint.y <<"\t"   << "\t" << myCoords.x << "\t" << myCoords.y << "\t" << 1 << "\t" << -1 << std::endl;
+                D2GFX_DrawLine(myPoint.x , myPoint.y , myCoords.x, myCoords.y, 6, -1);
+            }
         });
 
         D2::GameJoin::hooks.push_back([]() {
@@ -73,11 +91,19 @@ namespace Maphack {
         D2::AreaChange::hooks.push_back([](int area) {
             std::cout << "changed area -> " << area << std::endl;
 
-            Maphack::vault.previousArea = area;
+            // Remove all exists from list
+            std::cout << "vault size" << std::endl;
+            while(!Maphack::vault.exits.empty()) {
+                std::cout << "LOL -> " <<Maphack::vault.exits.size() << " some size " << Maphack::vault.exits[Maphack::vault.exits.size()-1].bStairs << "here lol" << std::endl;
+                Maphack::vault.exits.pop_back();
+            }
+            std::cout << std::endl;
+
+            std::cout << "start process" << area << std::endl;
 
             // We need to wait a little but until the area is fully
-            D2::Timer::add((1000/25)*4, [](DWORD __unused) {
-                std::cout << "called after 250 ms" << std::endl;
+            D2::Timer::add((1000 / 25) * 4, [](DWORD __unused) {
+//                std::cout << "called after 250 ms" << std::endl;
                 UnitAny *player = D2CLIENT_GetPlayerUnit();
                 if (player == nullptr) return;
 //            if (player->pPath->dwLevel)
@@ -114,12 +140,13 @@ namespace Maphack {
 
                             if (levelFrom && levelFrom->dwLevelNo) {
                                 bool found = false;
-                                for (auto & area : areas) found = found || area->dwLevelNo == levelFrom->dwLevelNo;
+                                for (auto &area : avoid) found = found || area->dwLevelNo == levelFrom->dwLevelNo;
                                 if (!found) {
-                                    std::cout << "this area connects to, via stairs. Add on the bad list: " << levelFrom->dwLevelNo << std::endl;
+//                                    std::cout << "this area connects to, via stairs. Add on the bad list: "<< levelFrom->dwLevelNo << std::endl;
 
                                     // we cant render that
                                     avoid.push_back(levelFrom);
+                                    Maphack::vault.exits.push_back({room,true});
                                 }
                             }
                         }
@@ -139,46 +166,50 @@ namespace Maphack {
 
                             // check if this area, need to take with stairs?
                             bool found = false;
-                            for (int j = 0; j < avoid.size() && !found; j++) found = found || avoid[j]->dwLevelNo == RoomNear[i]->pLevel->dwLevelNo;
+                            for (int j = 0; j < avoid.size() && !found; j++) found = found || avoid[j]->dwLevelNo ==
+                                                                                              RoomNear[i]->pLevel->dwLevelNo;
                             if (found) continue;
 
                             // If we found a neighbouring room that isn't ours, add that to the list of area's to reveal
-                            for (int j = 0; j < areas.size() && !found; j++) found = found || areas[j]->dwLevelNo == RoomNear[i]->pLevel->dwLevelNo;
+                            for (int j = 0; j < areas.size() && !found; j++) found = found || areas[j]->dwLevelNo ==
+                                                                                              RoomNear[i]->pLevel->dwLevelNo;
                             if (!found) {
-                                std::cout << "this area connects to: " << RoomNear[i]->pLevel->dwLevelNo << std::endl;
+//                                std::cout << "this area connects to: " << RoomNear[i]->pLevel->dwLevelNo << std::endl;
                                 areas.push_back(RoomNear[i]->pLevel);
+
+                                Maphack::vault.exits.push_back({RoomNear[i],false});
                             }
                         }
                     }
                 }
 
                 // clean up init'd area's
-                for (int i = 0; i < AddedRoomData.size(); i++) {
-                    D2COMMON_RemoveRoomData(AddedRoomData[i]->pLevel->pMisc->pAct, AddedRoomData[i]->pLevel->dwLevelNo,
-                                            AddedRoomData[i]->dwPosX, AddedRoomData[i]->dwPosY,
-                                            AddedRoomData[i]->pRoom1);
+                for (auto &addedRoom : AddedRoomData) {
+                    D2COMMON_RemoveRoomData(addedRoom->pLevel->pMisc->pAct, addedRoom->pLevel->dwLevelNo,
+                                            addedRoom->dwPosX, addedRoom->dwPosY,
+                                            addedRoom->pRoom1);
                 }
 
+                Maphack::vault.visibleAreas = areas;
                 int who = 0;
                 for (int i = 0; i < areas.size(); i++) {
                     if (!Maphack::vault.loadedAreas[areas[i]->dwLevelNo]) {
                         auto area = (DWORD) areas[i];
                         D2::Timer::add([](DWORD area) {
                             auto *level = (Level *) area;
-                            std::cout << "here"  << level->dwLevelNo << std::endl;
+//                            std::cout << "here" << level->dwLevelNo << std::endl;
                             if (!Maphack::vault.loadedAreas[level->dwLevelNo]) {
                                 Maphack::vault.loadedAreas[level->dwLevelNo] = true;
 
-                                std::cout << "maphacking area " << level->dwLevelNo << std::endl;
+//                                std::cout << "maphacking area " << level->dwLevelNo << std::endl;
                                 for (Room2 *room = level->pRoom2First; room; room = room->pRoom2Next) {
                                     Maphack::RevealRoom(room);
                                 }
                             }
-                        }, (1000/25) /*every frame 1*/ * (who++), area);
+                        }, (1000 / 25) /*every frame 1*/ * (who++), area);
                     }
                 }
             });
-
         });
     }
 }
