@@ -76,7 +76,7 @@ namespace Maphack {
             Maphack::vault.previousArea = area;
 
             // We need to wait a little but until the area is fully
-            D2::Timer::add(250, [](DWORD __unused) {
+            D2::Timer::add((1000/25)*4, [](DWORD __unused) {
                 std::cout << "called after 250 ms" << std::endl;
                 UnitAny *player = D2CLIENT_GetPlayerUnit();
                 if (player == nullptr) return;
@@ -174,7 +174,7 @@ namespace Maphack {
                                     Maphack::RevealRoom(room);
                                 }
                             }
-                        }, 100 * (who++), area);
+                        }, (1000/25) /*every frame 1*/ * (who++), area);
                     }
                 }
             });
