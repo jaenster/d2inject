@@ -56,11 +56,6 @@ namespace Maphack {
         return;
     };
 
-    struct BasicExit {
-        Level *pLevelFrom;
-        Level *pLevelTo;
-    };
-
     void Init() {
 
         D2::GameLoop::hooks.push_back([]() {
@@ -90,6 +85,7 @@ namespace Maphack {
 
                 // Add the current level to this vector
                 std::vector<Level *> areas = {player->pPath->pRoom1->pRoom2->pLevel};
+                std::vector<Level *> avoid;
 
                 // Check the neighbouring area's of this level
                 std::vector<Room2 *> AddedRoomData;
@@ -117,9 +113,14 @@ namespace Maphack {
 
 
                             if (levelFrom && levelFrom->dwLevelNo) {
-                                std::cout << "this area connects to: " << levelFrom->dwLevelNo << std::endl;
-                                // we cant render this to us, as we are not close enough to it
-//                                areas.push_back(levelFrom);
+                                bool found = false;
+                                for (auto & area : areas) found = found || area->dwLevelNo == levelFrom->dwLevelNo;
+                                if (!found) {
+                                    std::cout << "this area connects to, via stairs. Add on the bad list: " << levelFrom->dwLevelNo << std::endl;
+
+                                    // we cant render that
+                                    avoid.push_back(levelFrom);
+                                }
                             }
                         }
 
@@ -135,9 +136,14 @@ namespace Maphack {
 
 
                         if (RoomNear[i]->pLevel && RoomNear[i]->pLevel->dwLevelNo != room->pLevel->dwLevelNo) {
-                            // If we found a neighbouring room that isn't ours, add that to the list of area's to reveal
+
+                            // check if this area, need to take with stairs?
                             bool found = false;
-                            for (int j = 0; j < areas.size(); j++) found = found && areas[i]->dwLevelNo == RoomNear[i]->pLevel->dwLevelNo;
+                            for (int j = 0; j < avoid.size() && !found; j++) found = found || avoid[j]->dwLevelNo == RoomNear[i]->pLevel->dwLevelNo;
+                            if (found) continue;
+
+                            // If we found a neighbouring room that isn't ours, add that to the list of area's to reveal
+                            for (int j = 0; j < areas.size() && !found; j++) found = found || areas[j]->dwLevelNo == RoomNear[i]->pLevel->dwLevelNo;
                             if (!found) {
                                 std::cout << "this area connects to: " << RoomNear[i]->pLevel->dwLevelNo << std::endl;
                                 areas.push_back(RoomNear[i]->pLevel);
@@ -159,6 +165,7 @@ namespace Maphack {
                         auto area = (DWORD) areas[i];
                         D2::Timer::add([](DWORD area) {
                             auto *level = (Level *) area;
+                            std::cout << "here"  << level->dwLevelNo << std::endl;
                             if (!Maphack::vault.loadedAreas[level->dwLevelNo]) {
                                 Maphack::vault.loadedAreas[level->dwLevelNo] = true;
 
@@ -167,7 +174,7 @@ namespace Maphack {
                                     Maphack::RevealRoom(room);
                                 }
                             }
-                        }, 250 * (++who), area);
+                        }, 100 * (who++), area);
                     }
                 }
             });

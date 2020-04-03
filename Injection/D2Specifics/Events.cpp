@@ -36,9 +36,9 @@ namespace D2 {
         void Handler() {
             for (int i=0;i<timers.size();i++) {
                 if (!timers[i].done && GetTickCount() > timers[i].timer) {
+                    std::cout << GetTickCount() << "\t" << timers[i].timer << "\t" << timers[i].done << std::endl;
                     timers[i].pFunc(timers[i].param);
                     timers[i].done = true;
-                    std::cout << GetTickCount() << "\t" << timers[i].timer << "\t" << timers[i].done << std::endl;
                 }
             }
         }
