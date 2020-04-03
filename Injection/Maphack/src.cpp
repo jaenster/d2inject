@@ -19,71 +19,78 @@ namespace Maphack {
 //                // 1; has
 //                {2}
 //        };
+        long areaChangeTick;
+        int lastArea;
     };
     MyData vault;
 
 
     void Init() {
+
         D2::GameLoop::hooks.push_back([]() {
 
 //            std::cout << "lol here" << std::endl;
 
             UnitAny *player = D2CLIENT_GetPlayerUnit();
             if (player == nullptr) return;
+//            if (player->pPath->dwLevel)
 
-            auto revealRoom = [](Room2 *room2, UnitAny *player) {
-                bool beenAdded = false, beenInit = false;
+            auto revealRoom = [](Room2 *pRoom2) {
+                bool bAdded = false;
+                bool bInit = false;
 
-                if (room2 == nullptr) return;
+                DWORD dwLevelNo = D2CLIENT_GetPlayerUnit()->pPath->pRoom1->pRoom2->pLevel->dwLevelNo;
+                // Make sure we have the room.
+                if (!pRoom2)
+                    return false;
 
-                // Need to init room1?
-                if ((beenAdded = !room2->pLevel || !room2->pRoom1)) {
-                    std::cout << "add room" << room2->pLevel->pMisc->pAct<< room2->pLevel->dwLevelNo<< room2->dwPosX<<
-                            room2->dwPosY<< NULL << std::endl;
-                    D2COMMON_AddRoomData(room2->pLevel->pMisc->pAct, room2->pLevel->dwLevelNo, room2->dwPosX,
-                                         room2->dwPosY, NULL);
-
-                    // Failed at initing it?
-                    if (!room2->pRoom1) {
-                        std::cout << "failed inititing" << std::endl;
-                        return;
-                    }
+                UnitAny *player = D2CLIENT_GetPlayerUnit();
+                // Check if we have Room1(Needed in order to reveal)
+                if (!(pRoom2 && pRoom2->pLevel && pRoom2->pRoom1)) {
+                    D2COMMON_AddRoomData(pRoom2->pLevel->pMisc->pAct, pRoom2->pLevel->dwLevelNo, pRoom2->dwPosX,
+                                         pRoom2->dwPosY, NULL);
+                    bAdded = true;
+                }
+                if (!(pRoom2 && pRoom2->pRoom1)) { // second check added to see if we DID indeed init the room!
+                    return false;
                 }
 
-                if (!(room2->pLevel
-                      && room2->pLevel->dwLevelNo
-                      && player->pPath
-                      && player->pPath->pRoom1
-                      && player->pPath->pRoom1->pRoom2
-                      && player->pPath->pRoom1->pRoom2->pLevel
-                      && player->pPath->pRoom1->pRoom2->pLevel->dwLevelNo == room2->pLevel->dwLevelNo)
-                        ) {
-
-                    std::cout << "need to init InitAutomapLayer" << std::endl;
-                    // need to init it?
-                    InitAutomapLayer(room2->pLevel->dwLevelNo);
-                    beenInit = true;
+                // If we are somewhere other then the given area, init automap layer to be drawn to.
+                if (!(pRoom2 && pRoom2->pLevel && pRoom2->pLevel->dwLevelNo && player->pPath && player->pPath->pRoom1 &&
+                      player->pPath->pRoom1->pRoom2 &&
+                      player->pPath->pRoom1->pRoom2->pLevel &&
+                      player->pPath->pRoom1->pRoom2->pLevel->dwLevelNo == pRoom2->pLevel->dwLevelNo)) {
+                    InitAutomapLayer(pRoom2->pLevel->dwLevelNo);
+                    bInit = true;
                 }
 
-                if (beenAdded)
-                    D2COMMON_RemoveRoomData(room2->pLevel->pMisc->pAct, room2->pLevel->dwLevelNo, room2->dwPosX,
-                                            room2->dwPosY, NULL);
+                // Reveal this room!
+                D2CLIENT_RevealAutomapRoom(pRoom2->pRoom1, TRUE, (*p_D2CLIENT_AutomapLayer));
 
-                if (beenInit) {
-                    InitAutomapLayer(player->pPath->pRoom1->pRoom2->pLevel->dwLevelNo);
-                }
-                return;
+                // Remove room data if we have added.
+                if (bAdded)
+                    D2COMMON_RemoveRoomData(pRoom2->pLevel->pMisc->pAct, pRoom2->pLevel->dwLevelNo, pRoom2->dwPosX,
+                                            pRoom2->dwPosY, NULL);
+
+                if (bInit)
+                    InitAutomapLayer(dwLevelNo);
+
+                return true;
             };
 
             // Add the current level to this vector
             std::vector<Level *> areas = {player->pPath->pRoom1->pRoom2->pLevel};
 
             for (int i = 0; i < areas.size(); i++) {
+                if (!vault.loadedAreas[areas[0]->dwLevelNo]) {
+                    vault.loadedAreas[areas[0]->dwLevelNo] = true;
 //                std::cout << "lol here " << i << std::endl;
-                for (Room2 *room = areas[0]->pRoom2First; room; room = room->pRoom2Next) {
+                    for (Room2 *room = areas[0]->pRoom2First; room; room = room->pRoom2Next) {
 //                    std::cout << "lol here " << areas[0]->pRoom2First << std::endl;
-                    revealRoom(room, player);
+                        revealRoom(room);
+                    }
                 }
+
             }
 
         });
