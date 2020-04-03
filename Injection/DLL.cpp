@@ -4,7 +4,7 @@ BOOL WINAPI DllMain(HINSTANCE hDll, DWORD dwReason, LPVOID lpReserved) {
     switch (dwReason) {
         case DLL_PROCESS_ATTACH: {
 
-#ifdef COMPILE_WITH_CONSOLE
+#ifdef DEBUG_CODE
             // Open a console, if on a debugging defined
             AllocConsole();
                     FILE* fDummy;
