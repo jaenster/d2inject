@@ -44,12 +44,12 @@ void Startup() {
 #ifdef DEBUG_CODE
     D2::GameDrawOOG::hooks.push_back([]() {
         D2WIN_DrawText(L"What else is new",10,10,4,10);
-//        std::cout << "Looked at oog drawing" << std::endl;
+//        std::cout << "oog drawing" << std::endl;
     });
 
     D2::GameDraw::hooks.push_back([]() {
         D2WIN_DrawText(L"What else is new",10,10,4,10);
-//        std::cout << "Looked at in-game drawing" << std::endl;
+//        std::cout << "in-game drawing" << std::endl;
     });
 
     D2::GameLoop::hooks.push_back([]() {

@@ -3,6 +3,7 @@
 
 namespace D2 {
     extern bool inGame = false;
+    extern int area = 0;
     namespace GameJoin {
         std::vector<void (*)(void)> hooks = {
 
@@ -12,6 +13,24 @@ namespace D2 {
             for (auto func: hooks) func();
         }
     }
+    namespace AreaChange {
+        std::vector<void (*)(int)> hooks;
+
+        void Handler(int areaId) {
+            for (auto func: hooks) func(areaId);
+        }
+
+        void Check(void) {
+            UnitAny *player = D2CLIENT_GetPlayerUnit();
+            if (player == nullptr) return;
+
+            int current = player->pPath->pRoom1->pRoom2->pLevel->dwLevelNo;
+            if (D2::area != current) {
+                D2::area = current;
+                Handler(current);
+            }
+        }
+    }
     namespace GameLoop { // PATCH
         std::vector<void (*)(void)> hooks = {
                 []() {
@@ -19,10 +38,12 @@ namespace D2 {
                     // if we wherent in game yet, this is the time to load call GameJoin
                     if (!D2::inGame) {
                         D2::inGame = true;
+                        D2::area = 0;
                         D2::GameJoin::Handler();
                     }
-
-                }
+                    // check the area change
+                    D2::AreaChange::Check();
+                },
         };
 
         void Handler(void) {

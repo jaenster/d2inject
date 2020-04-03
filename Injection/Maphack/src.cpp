@@ -19,8 +19,6 @@ namespace Maphack {
 //                // 1; has
 //                {2}
 //        };
-        long areaChangeTick;
-        int lastArea;
     };
     MyData vault;
 
@@ -28,7 +26,6 @@ namespace Maphack {
     void Init() {
 
         D2::GameLoop::hooks.push_back([]() {
-
 //            std::cout << "lol here" << std::endl;
 
             UnitAny *player = D2CLIENT_GetPlayerUnit();
@@ -101,6 +98,10 @@ namespace Maphack {
             for (int i = 0; i < 137; i++) { // Town area's get loaded automatically
                 vault.loadedAreas[i] = i == 1 || i == 40 || i == 75 || i == 103 || i == 109;
             }
+        });
+
+        D2::AreaChange::hooks.push_back([](int area) {
+            std::cout << "changed area -> " << area << std::endl;
         });
     }
 }

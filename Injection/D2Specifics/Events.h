@@ -47,6 +47,9 @@ namespace D2 {
 
         void  Override(void);
     }
+    namespace AreaChange {
+        extern std::vector<void (*)(int)> hooks;
+    }
 }
 
 #endif //D21_14DCLEANINJECT_INTERCEPTIONS_H
