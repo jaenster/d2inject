@@ -33,6 +33,15 @@ namespace D2 {
             {PatchCall, off(0x4EBEF), (DWORD)D2::CongratsScreen::Override, 5},
             {PatchCall,off(0x4F57C),(DWORD)D2::GameLeave::Override,5},
 
+
+            // Extra work
+            {PatchBytes, off(0x521AC2), 0x75, 1},
+            {PatchBytes, off(0x521AE2), 0x75, 1},
+
+            // Extra work
+            {PatchBytes,off(0x11FE3B),(DWORD) 0x90909090,4},
+            {PatchBytes,off(0x11FE3B+4),(WORD) 0x9090,2},
+
             /*         Original data
 
     0:  75 17                   jne    0x19
