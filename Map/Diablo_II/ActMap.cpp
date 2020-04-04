@@ -1,5 +1,6 @@
+#include <algorithm>
+#include <assert.h>
 #include "ActMap.h"
-
 
 namespace Mapping {
 

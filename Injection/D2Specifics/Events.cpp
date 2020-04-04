@@ -178,7 +178,19 @@ namespace D2 {
     }
 
     namespace GameDraw { // PATCH
-        std::vector<void (*)(void)> hooks = {};
+        std::vector<void (*)(void)> hooks = {
+                []() {
+                    if (global.SectionCount) {
+                        if (global.bGameLoopEntered)
+                            LeaveCriticalSection(&global.cGameLoopSection);
+                        else
+                            global.bGameLoopEntered = true;
+                        Sleep(0);
+                        EnterCriticalSection(&global.cGameLoopSection);
+                    } else
+                        Sleep(10);
+                }
+        };
 
         void Handler(void) {
             for (auto func: hooks) func();

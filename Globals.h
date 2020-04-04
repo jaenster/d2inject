@@ -26,6 +26,7 @@ struct Globals_h {
     CRITICAL_SECTION cGameLoopSection;
 //    CRITICAL_SECTION cUnitListSection;
 //    CRITICAL_SECTION cFileSection;
+    bool bGameLoopEntered;
 };
 extern Globals_h global;
 

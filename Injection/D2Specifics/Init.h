@@ -31,6 +31,8 @@ void DefineOffsets() {
 
 
 void Startup() {
+    InitializeCriticalSection(&global.cGameLoopSection);
+    
     DefineOffsets();
     // We just entered the DLL.. Now what?
     InstallPatches(D2::Patches);

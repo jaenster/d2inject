@@ -9,6 +9,7 @@
 // Game loop patch
 ///////////////////////////////////////////////////
 #include "Windows.h"
+#include "../../Globals.h"
 #include <set>
 #include <iostream>
 #include <vector>
