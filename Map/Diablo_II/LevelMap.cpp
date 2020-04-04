@@ -26,6 +26,8 @@ void LevelMap::ClearCache(void) {
 }
 
 LevelMap::LevelMap(const Level* level) {
+    lock = new CRITICAL_SECTION;
+    InitializeCriticalSection(lock);
 
     assert(act != NULL);
     assert(level != NULL);
@@ -55,7 +57,9 @@ LevelMap::LevelMap(const Level* level) {
 }
 
 LevelMap::~LevelMap(void) {
-
+    DeleteCriticalSection(lock);
+    delete lock;
+    lock = NULL;
 }
 
 void LevelMap::Build(void) {

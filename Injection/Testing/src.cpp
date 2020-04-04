@@ -3,6 +3,7 @@
 //
 
 #include "src.h"
+#include "../D2Specifics/Events.h"
 
 namespace Testing {
 
@@ -16,8 +17,12 @@ namespace Testing {
     }
 
     void Init() {
-        BYTE buf[16];
-        ::ReadProcessMemory(GetCurrentProcess(), (void *) myOffset(0x2194A0), buf, 16, NULL);
-        std::cout << hexStr(buf, 16) << std::endl;
+        BYTE buf[200];
+        ::ReadProcessMemory(GetCurrentProcess(), (void *) myOffset(0x2194A0), buf, 200, NULL);
+        std::cout << hexStr(buf, 200) << std::endl;
+
+        BYTE buf2[16];
+        ::ReadProcessMemory(GetCurrentProcess(), (void *) (DWORD) D2::ActChange::Override_I, buf2, 16, NULL);
+        std::cout << hexStr(buf2, 16) << std::endl;
     }
 }
