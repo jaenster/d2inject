@@ -29,7 +29,7 @@ add_library(D2Inject SHARED
 #        Injection/D2Specifics/D2Common.h
         Map/Diablo_II/ActMap.cpp
         Map/Diablo_II/LevelMap.cpp
-        Tools/StringManipulation.cpp Tools/StringManipulation.h Injection/D2Specifics/D2Constants.h)
+        Tools/StringManipulation.cpp Tools/StringManipulation.h Injection/D2Specifics/D2Constants.h Injection/Testing/src.cpp Injection/Testing/src.h)
 #add_library(D2Inject SHARED CommandLine.cpp D2FW.cpp)
 
 # in case you need some libs

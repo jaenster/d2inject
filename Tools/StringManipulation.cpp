@@ -19,3 +19,14 @@ char* UnicodeToAnsi(const wchar_t* str, UINT codepage) {
     WideCharToMultiByte(codepage, 0, str, -1, buf, len, (codepage ? NULL : "?"), NULL);
     return buf;
 }
+
+
+std::string hexStr(BYTE *data, int len) {
+    std::stringstream ss;
+    ss << std::hex;
+
+    for (int i(0); i < len; ++i)
+        ss << std::setw(2) << std::setfill('0') << (int) data[i];
+
+    return ss.str();
+}

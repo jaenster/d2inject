@@ -34,6 +34,9 @@ namespace D2 {
             {PatchCall,off(0x4F57C),(DWORD)D2::GameLeave::Override,5},
 
 
+            {PatchCall, off(0x547B6), (DWORD)D2::ActChange::Override_I, 5},      // Updated 1.14d //004547B6-BASE
+            {PatchJmp, off(0x567EB), (DWORD)D2::ActChange::Override_II, 5},      // Updated 1.14d //004567EB-BASE
+
             // Extra work
             {PatchBytes, off(0x521AC2), 0x75, 1},
             {PatchBytes, off(0x521AE2), 0x75, 1},

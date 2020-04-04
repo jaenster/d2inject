@@ -20,6 +20,7 @@
 #include "Events.h"
 #include "Patches.h"
 #include "../maphack/src.h"
+#include "../Testing/src.h"
 
 void DefineOffsets() {
     DWORD** p = (DWORD**)d2ptrs_list;
@@ -37,6 +38,7 @@ void Startup() {
 
     // Load the maphack
     Maphack::Init();
+    Testing::Init();
 
     //////////
     // just some proof of concepts

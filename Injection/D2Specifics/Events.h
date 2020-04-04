@@ -57,6 +57,13 @@ namespace D2 {
         long add(void (*pFunc)(DWORD), int ms, DWORD parameter);
         bool remove(int type);
     }
+
+    namespace ActChange {
+        extern int currentState;
+        extern std::vector<void (*)(int)> hooks;
+        void Override_I(void);
+        void Override_II(void);
+    }
 }
 
 #endif //D21_14DCLEANINJECT_INTERCEPTIONS_H

@@ -21,11 +21,12 @@ namespace D2 {
             return timers.size() - 1;
         }
 
-        long add(int ms,void (*pFunc)(DWORD)) {
-            return D2::Timer::add(pFunc,ms,0);
+        long add(int ms, void (*pFunc)(DWORD)) {
+            return D2::Timer::add(pFunc, ms, 0);
         }
-        long add(void (*pFunc)(DWORD),int ms) {
-            return D2::Timer::add(pFunc,ms,0);
+
+        long add(void (*pFunc)(DWORD), int ms) {
+            return D2::Timer::add(pFunc, ms, 0);
         }
 
         bool remove(long id) {
@@ -34,7 +35,7 @@ namespace D2 {
         }
 
         void Handler() {
-            for (int i=0;i<timers.size();i++) {
+            for (int i = 0; i < timers.size(); i++) {
                 if (!timers[i].done && GetTickCount() > timers[i].timer) {
                     std::cout << GetTickCount() << "\t" << timers[i].timer << "\t" << timers[i].done << std::endl;
                     timers[i].pFunc(timers[i].param);
@@ -71,6 +72,43 @@ namespace D2 {
             }
         }
     }
+    namespace ActChange {
+        int currentState = 0;
+        int lastState = -1;
+        std::vector<void (*)(int)> hooks = {
+                [](int type){
+                    std::cout << "here =O" << type << std::endl;
+                }
+        };
+
+        void Handler() {
+            for (auto func: hooks) func(currentState);
+        }
+
+        // Coming out of changing act
+        void __declspec(naked) Override_I(void) {
+            __asm
+            {
+            POP EAX
+            PUSH ESI
+            XOR ESI, ESI
+            CMP [currentState], 0
+            MOV [currentState], 0
+            JMP EAX
+            }
+        }
+
+        // Actually changing acts
+        void __declspec(naked) Override_II(void) {
+            __asm
+            {
+            MOV ESP, EBP
+            POP EBP
+            MOV[currentState], 1
+            retn
+            }
+        }
+    }
     namespace GameLoop { // PATCH
         std::vector<void (*)(void)> hooks = {
                 []() {
@@ -81,6 +119,13 @@ namespace D2 {
                         D2::area = 0;
                         D2::GameJoin::Handler();
                     }
+
+
+                    if (D2::ActChange::currentState != D2::ActChange::lastState ) {
+                        D2::ActChange::lastState = D2::ActChange::currentState;
+                        D2::ActChange::Handler();
+                    }
+
                     // check the area change
                     D2::AreaChange::Check();
 
@@ -175,6 +220,7 @@ namespace D2 {
                 []() {
                     // Once we left the game, we arent in one
                     D2::inGame = false;
+                    D2::ActChange::currentState = -1;
                 }
         };
 
