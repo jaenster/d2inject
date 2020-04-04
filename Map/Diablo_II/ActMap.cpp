@@ -30,6 +30,8 @@ void ActMap::ClearCache(void) {
 }
 
 ActMap::ActMap(const Level* level) {
+    lock = new CRITICAL_SECTION;
+    InitializeCriticalSection(lock);
     assert(act != NULL);
     assert(level != NULL);
 
@@ -187,7 +189,8 @@ void ActMap::AllowCritSpace(void) const {
 
 }
 void ActMap::GetExits(ExitArray& exits) const {
-    static const Point empty(0, 0);
+    EnterCriticalSection(lock);
+
     RoomList added;
 
     for (Room2* room = level->pRoom2First; room; room = room->pRoom2Next) {
@@ -206,6 +209,8 @@ void ActMap::GetExits(ExitArray& exits) const {
     RoomList::iterator start = added.begin(), last = added.end();
     for (RoomList::iterator it = start; it != last; it++)
         RemoveRoomData(*it);
+
+    LeaveCriticalSection(lock);
 }
 
 bool ActMap::ExitExists(Point loc, ExitArray& exits) const {
@@ -536,7 +541,7 @@ bool ActMap::PathHasLineOfSight(const PointList& points, bool abs) const {
 }
 
 void ActMap::Dump(const char* file, const PointList& points) const {
-
+    EnterCriticalSection(lock);
     FILE* f = NULL;
     fopen_s(&f, file, "wt+");
     if (!f)
@@ -599,9 +604,11 @@ void ActMap::Dump(const char* file, const PointList& points) const {
         fprintf(f, "\n");
     }
     fclose(f);
+    LeaveCriticalSection(lock);
 }
 
 void ActMap::DumpLevel(const char* file) const {
+    EnterCriticalSection(lock);
     FILE* f = NULL;
     fopen_s(&f, file, "wt+");
     if (!f)
@@ -705,6 +712,7 @@ void ActMap::DumpLevel(const char* file) const {
         fprintf(f, "\n");
     }
     fclose(f);
+    LeaveCriticalSection(lock);
 }
 
 } // namespace Mapping
